@@ -32,7 +32,6 @@ import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CaseTree;
-import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.source.tree.CatchTree;
 import com.sun.source.tree.CompoundAssignmentTree;
 import com.sun.source.tree.ConditionalExpressionTree;
@@ -681,7 +680,7 @@ abstract class PlaceholderUnificationVisitor
         return (JCCase) TreeMaker.class.getMethod("Case",
             Class.forName("com.sun.source.tree.CaseTree.CaseKind"), List.class, List.class,
             JCTree.class)
-            .invoke(maker(), node.getCaseKind(), List.of((JCExpression) node.getExpression()),
+            .invoke(maker(), caseKind, List.of((JCExpression) node.getExpression()),
                 stmts, /* body= */ null);
       } else {
         return (JCCase) TreeMaker.class.getMethod("Case", JCExpression.class, List.class)
