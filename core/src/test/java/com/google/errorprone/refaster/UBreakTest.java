@@ -16,8 +16,11 @@
 
 package com.google.errorprone.refaster;
 
+import static org.junit.Assume.assumeFalse;
+
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.SerializableTester;
+import com.google.errorprone.util.RuntimeVersion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
