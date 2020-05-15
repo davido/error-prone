@@ -1234,8 +1234,8 @@ public class SuggestedFixes {
     return true;
   }
 
-  private static final ImmutableSet<String> SOURCE_TARGET_OPTIONS = ImmutableSet
-      .of("-source", "--source", "-target", "--target");
+  private static final ImmutableSet<String> SOURCE_TARGET_OPTIONS =
+      ImmutableSet.of("-source", "--source", "-target", "--target");
 
   /** Create a plausible URI to use in {@link #compilesWithFix}. */
   @VisibleForTesting

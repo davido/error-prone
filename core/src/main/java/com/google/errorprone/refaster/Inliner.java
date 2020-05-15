@@ -48,7 +48,6 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 import java.util.Map;
 import java.util.Set;
-import javax.sound.sampled.LineUnavailableException;
 
 /**
  * A context representing all the dependencies necessary to reconstruct a pretty-printable source

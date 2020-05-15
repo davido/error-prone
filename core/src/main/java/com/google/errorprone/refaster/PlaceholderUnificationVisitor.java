@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.errorprone.refaster.PlaceholderUnificationVisitor.State;
@@ -521,7 +520,7 @@ abstract class PlaceholderUnificationVisitor
             state,
             s -> unifyExpression(node.getVariable(), s),
             s -> unifyExpression(node.getExpression(), s),
-            (var, expr) -> maker().Assignop(((JCAssignOp) node).getTag(), var, expr))
+            (variable, expr) -> maker().Assignop(((JCAssignOp) node).getTag(), variable, expr))
         .condition(assignOp -> !(assignOp.result().getVariable() instanceof PlaceholderParamIdent));
   }
 
@@ -667,24 +666,35 @@ abstract class PlaceholderUnificationVisitor
   @Override
   public Choice<State<JCCase>> visitCase(final CaseTree node, State<?> state) {
     return chooseSubtrees(
-        state,
-        s -> unifyStatements(node.getStatements(), s),
-        stmts -> makeCase(node, stmts));
+        state, s -> unifyStatements(node.getStatements(), s), stmts -> makeCase(node, stmts));
   }
 
   private JCCase makeCase(CaseTree node, List<JCStatement> stmts) {
     try {
       if (RuntimeVersion.isAtLeast12()) {
-        Enum caseKind = (Enum) CaseTree.class.getMethod("getCaseKind").invoke(node);
-        checkState(caseKind.equals("STATEMENT"), "expression switches are not supported yet");
-        return (JCCase) TreeMaker.class.getMethod("Case",
-            Class.forName("com.sun.source.tree.CaseTree.CaseKind"), List.class, List.class,
-            JCTree.class)
-            .invoke(maker(), caseKind, List.of((JCExpression) node.getExpression()),
-                stmts, /* body= */ null);
+        Enum<?> caseKind = (Enum) CaseTree.class.getMethod("getCaseKind").invoke(node);
+        checkState(
+            caseKind.name().contentEquals("STATEMENT"),
+            "expression switches are not supported yet");
+        return (JCCase)
+            TreeMaker.class
+                .getMethod(
+                    "Case",
+                    Class.forName("com.sun.source.tree.CaseTree.CaseKind"),
+                    List.class,
+                    List.class,
+                    JCTree.class)
+                .invoke(
+                    maker(),
+                    caseKind,
+                    List.of((JCExpression) node.getExpression()),
+                    stmts,
+                    /* body= */ null);
       } else {
-        return (JCCase) TreeMaker.class.getMethod("Case", JCExpression.class, List.class)
-            .invoke(maker(), node.getExpression(), stmts);
+        return (JCCase)
+            TreeMaker.class
+                .getMethod("Case", JCExpression.class, List.class)
+                .invoke(maker(), node.getExpression(), stmts);
       }
     } catch (ReflectiveOperationException e) {
       throw new LinkageError(e.getMessage(), e);

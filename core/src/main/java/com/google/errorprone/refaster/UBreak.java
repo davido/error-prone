@@ -19,7 +19,6 @@ package com.google.errorprone.refaster;
 import com.google.errorprone.util.RuntimeVersion;
 import com.sun.source.tree.BreakTree;
 import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.tree.JCTree.JCBreak;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -45,7 +44,7 @@ final class UBreak extends USimpleStatement implements BreakTree {
     return new UBreak((label == null) ? null : StringName.of(label));
   }
 
-  // @Override
+  // @Override for JDK 12 only
   public ExpressionTree getValue() {
     return null;
   }
@@ -75,15 +74,16 @@ final class UBreak extends USimpleStatement implements BreakTree {
     return makeBreak(ULabeledStatement.inlineLabel(getLabel(), inliner), inliner);
   }
 
-  private JCBreak makeBreak(Name label, Inliner inliner) {
+  private static JCBreak makeBreak(Name label, Inliner inliner) {
     try {
       if (RuntimeVersion.isAtLeast12()) {
-        return (JCBreak) TreeMaker.class.getMethod("Break", JCExpression.class)
-            .invoke(inliner.maker(),
-                inliner.maker().Ident(label));
+        return (JCBreak)
+            TreeMaker.class
+                .getMethod("Break", JCExpression.class)
+                .invoke(inliner.maker(), inliner.maker().Ident(label));
       } else {
-        return (JCBreak) TreeMaker.class.getMethod("Break", Name.class).invoke(inliner.maker(),
-            label);
+        return (JCBreak)
+            TreeMaker.class.getMethod("Break", Name.class).invoke(inliner.maker(), label);
       }
     } catch (ReflectiveOperationException e) {
       throw new LinkageError(e.getMessage(), e);
